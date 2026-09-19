@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C-Gest</title>
+<meta name="description" content="El programa para la comunidad de vecinos que se lleva sola. Cuentas, recibos, juntas y actas, sin administrador de fincas. Gratis para cada vecino.">
+<link rel="canonical" href="https://juancarjim.github.io/cgest-web/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="C-Gest · Tu comunidad de vecinos, sin administrador">
+<meta property="og:description" content="Cuentas, recibos, juntas y actas de tu edificio. Gratis para cada vecino; lo contrata la comunidad.">
+<meta property="og:url" content="https://juancarjim.github.io/cgest-web/">
+<meta property="og:image" content="https://juancarjim.github.io/cgest-web/imagenes/movil-inicio.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1F5C8B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lora:wght@500;600&family=Roboto+Mono:wght@400;500&display=swap">
+
+<style>
+/* ---------------------------------------------------------------
+   La letra es la decisión de diseño.
+
+   Atkinson Hyperlegible está hecha por el Braille Institute para que
+   la lea alguien con poca vista: distingue la I de la l, el 0 de la O.
+   Si el listón del producto es que lo use una persona de 90 años, la
+   página que lo vende cumple el mismo listón.
+
+   Color: el azul de azulejo de portal español, y el ocre para el
+   dinero. Nada de gradientes.
+   --------------------------------------------------------------- */
+:root {
+  --fondo:        #FBFAF7;
+  --fondo-hondo:  #F1EFE9;
+  --tarjeta:      #FFFFFF;
+  --oscuro:       #171A1D;
+  --tinta:        #1A1F26;
+  --tinta-media:  #4C555F;
+  --tinta-tenue:  #737D86;
+  --linea:        #DED9CF;
+  --linea-fina:   #EAE6DE;
+  --azul:         #1F5C8B;
+  --azul-hondo:   #16425F;
+  --azul-suave:   #E3EDF4;
+  --ocre:         #A8741A;
+  --ocre-suave:   #F6EDDA;
+
+  --titulo: 'Lora', Georgia, 'Times New Roman', serif;
+  --texto:  'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --dato:   'Roboto Mono', ui-monospace, Menlo, monospace;
+
+  --medida: 36rem;
+  --ancho:  72rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo:        #14181D;
+    --fondo-hondo:  #0E1216;
+    --tarjeta:      #1C2229;
+    --oscuro:       #0B0E11;
+    --tinta:        #ECEFF2;
+    --tinta-media:  #AEB7C0;
+    --tinta-tenue:  #838D97;
+    --linea:        #2E3740;
+    --linea-fina:   #242C34;
+    --azul:         #6FB3DF;
+    --azul-hondo:   #8FC8ED;
+    --azul-suave:   #1B2E3C;
+    --ocre:         #D9A84E;
+    --ocre-suave:   #2E2716;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo:        #14181D;
+  --fondo-hondo:  #0E1216;
+  --tarjeta:      #1C2229;
+  --oscuro:       #0B0E11;
+  --tinta:        #ECEFF2;
+  --tinta-media:  #AEB7C0;
+  --tinta-tenue:  #838D97;
+  --linea:        #2E3740;
+  --linea-fina:   #242C34;
+  --azul:         #6FB3DF;
+  --azul-hondo:   #8FC8ED;
+  --azul-suave:   #1B2E3C;
+  --ocre:         #D9A84E;
+  --ocre-suave:   #2E2716;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  margin: 0;
+  padding-inline: 1.25rem;
+  padding-block: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hoja   { max-width: var(--ancho); margin-inline: auto; }
+.centro { max-width: var(--medida); }
+img { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3 { font-family: var(--titulo); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.15rem, 6vw, 3.6rem); line-height: 1.08; letter-spacing: -0.015em; }
+h2 { font-size: clamp(1.6rem, 3.6vw, 2.35rem); line-height: 1.15; }
+h3 { font-size: 1.2rem; line-height: 1.3; font-family: var(--texto); font-weight: 700; }
+p  { margin: 0; }
+a  { color: var(--azul); }
+
+.etiqueta {
+  font-family: var(--dato); font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--tinta-tenue);
+}
+
+/* ------------------------------------------------ cabecera */
+
+.barra { display: flex; justify-content: space-between; align-items: center;
+         gap: 1rem; padding-block: 1.4rem; flex-wrap: wrap; }
+.logo { font-family: var(--titulo); font-size: 1.45rem; font-weight: 600; letter-spacing: -0.01em; }
+.logo b { color: var(--azul); font-weight: 600; }
+
+/* ------------------------------------------------ portada */
+
+.portada { padding-block: clamp(2rem, 6vw, 3.5rem) clamp(2.5rem, 6vw, 4rem);
+           display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+@media (min-width: 62rem) { .portada { grid-template-columns: 1.15fr 0.85fr; gap: 3rem; } }
+.portada h1 { max-width: 18ch; }
+.portada .bajada { font-size: clamp(1.15rem, 2.5vw, 1.4rem); line-height: 1.5;
+                   color: var(--tinta-media); max-width: 34rem; margin-top: 1.1rem; }
+.portada-texto { display: flex; flex-direction: column; }
+
+.acciones { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; margin-top: 1.6rem; }
+.boton {
+  display: inline-block; background: var(--azul); color: #FFFFFF;
+  font-family: var(--texto); font-weight: 700; font-size: 1.1rem;
+  padding: 0.85rem 1.6rem; border: 2px solid var(--azul);
+  text-decoration: none; border-radius: 3px;
+}
+.boton:hover { background: var(--azul-hondo); border-color: var(--azul-hondo); }
+.boton.hueco { background: transparent; color: var(--azul); }
+.boton.hueco:hover { background: var(--azul-suave); }
+:root[data-theme="dark"] .boton { color: #0E1216; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .boton { color: #0E1216; } }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .boton { color: #FFFFFF; } }
+
+.junto-boton { font-size: 0.98rem; color: var(--tinta-tenue); margin-top: 0.9rem; max-width: 32rem; }
+
+/* el móvil de la portada */
+.telefono {
+  border: 10px solid var(--oscuro); border-radius: 30px; overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18); background: var(--oscuro);
+  max-width: 300px; margin-inline: auto;
+}
+
+/* ------------------------------------------------ secciones */
+
+section { padding-block: clamp(2.6rem, 6vw, 4rem); border-top: 1px solid var(--linea); }
+.titular { display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.5rem; max-width: var(--medida); }
+.titular .etiqueta { color: var(--azul); }
+.prosa { display: flex; flex-direction: column; gap: 1rem; max-width: var(--medida); }
+
+/* ------------------------------------------------ los tres sombreros */
+
+.sombreros { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+             gap: 1px; background: var(--linea); border: 1px solid var(--linea); margin-top: 1.6rem; }
+.sombrero { background: var(--tarjeta); padding: 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.sombrero .etiqueta { color: var(--ocre); }
+.sombrero p { font-size: 0.99rem; color: var(--tinta-media); }
+
+/* ------------------------------------------------ lo que nadie hace */
+
+.solos { display: flex; flex-direction: column; gap: 0; margin-top: 1.6rem;
+         border-top: 1px solid var(--linea); }
+.solo { display: grid; grid-template-columns: 1fr; gap: 0.4rem;
+        padding-block: 1.3rem; border-bottom: 1px solid var(--linea-fina); }
+@media (min-width: 48rem) { .solo { grid-template-columns: 1fr 1fr; gap: 0 2.5rem; } }
+.solo h3 { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+.solo .art { font-family: var(--dato); font-size: 0.72rem; color: var(--azul); white-space: nowrap; }
+.solo p { color: var(--tinta-media); font-size: 1rem; }
+.solo .nadie { font-family: var(--dato); font-size: 0.68rem; letter-spacing: 0.07em;
+               text-transform: uppercase; color: var(--ocre); }
+
+/* ------------------------------------------------ lo que hace */
+
+.hace { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: 1.6rem 2.2rem; margin-top: 1.8rem; }
+.pieza { display: flex; flex-direction: column; gap: 0.35rem; }
+.pieza h3 { display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap; }
+.pieza .art { font-family: var(--dato); font-size: 0.7rem; font-weight: 400; color: var(--azul); white-space: nowrap; }
+.pieza p { font-size: 0.99rem; color: var(--tinta-media); }
+
+/* ------------------------------------------------ la galería */
+
+.galeria { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.6rem; }
+@media (min-width: 48rem) { .galeria { grid-template-columns: repeat(2, 1fr); } }
+.galeria figure { margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.galeria figcaption { font-size: 0.95rem; color: var(--tinta-media); }
+.galeria .telefono { max-width: 100%; }
+
+.puesto {
+  margin-top: 1.6rem; border: 10px solid var(--oscuro); border-radius: 12px;
+  overflow: hidden; background: var(--oscuro); box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+}
+.pie-figura { font-size: 0.95rem; color: var(--tinta-media); margin-top: 0.8rem; max-width: var(--medida); }
+
+/* ------------------------------------------------ precio */
+
+.cuentas { margin-top: 1.6rem; border: 1px solid var(--linea); background: var(--tarjeta); overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 32rem; }
+th, td { text-align: left; padding: 0.85rem 1.1rem; border-bottom: 1px solid var(--linea-fina); }
+thead th { font-family: var(--dato); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.09em;
+           text-transform: uppercase; color: var(--tinta-tenue); }
+tbody tr:last-child td { border-bottom: none; }
+td.n { font-family: var(--dato); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.nuestra td { background: var(--ocre-suave); font-weight: 700; }
+tr.nuestra td:first-child { box-shadow: inset 4px 0 0 var(--ocre); }
+
+/* ------------------------------------------------ objeciones */
+
+.objeciones { display: flex; flex-direction: column; gap: 0; margin-top: 1.4rem;
+              border-top: 1px solid var(--linea); }
+.objecion { padding-block: 1.1rem; border-bottom: 1px solid var(--linea-fina);
+            display: flex; flex-direction: column; gap: 0.4rem; }
+.objecion q { font-family: var(--titulo); font-size: 1.15rem; font-weight: 600; quotes: '«' '»'; }
+.objecion p { color: var(--tinta-media); font-size: 1rem; max-width: var(--medida); }
+
+/* ------------------------------------------------ avisos */
+
+.pendiente {
+  border: 2px dashed var(--ocre); background: var(--ocre-suave); color: var(--tinta);
+  padding: 1rem 1.2rem; font-size: 0.97rem; line-height: 1.55; max-width: 44rem; margin-top: 1.2rem;
+}
+.pendiente code { font-family: var(--dato); font-size: 0.88em; }
+
+/* ------------------------------------------------ cierre */
+
+.cierre { border-top: 2px solid var(--tinta); display: flex; flex-direction: column; gap: 1.2rem; }
+.cierre h2 { max-width: 20ch; }
+
+.franja-legal { padding-block: 2rem 3rem; border-top: 1px solid var(--linea); margin-top: 2rem;
+                display: flex; flex-direction: column; gap: 0.7rem; }
+.franja-legal p { font-size: 0.88rem; color: var(--tinta-tenue); max-width: 44rem; line-height: 1.55; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------------------------------------------------- el formulario */
+.formulario { max-width: var(--medida); margin: 2rem auto 0; text-align: left; }
+.campos { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; }
+.campo { display: flex; flex-direction: column; gap: .35rem; }
+.campo.ancho { grid-column: 1 / -1; }
+.campo > span { font-size: .84rem; font-weight: 700; color: var(--tinta-media); }
+.campo > span b { color: var(--ocre); }
+.campo input, .campo textarea {
+  font: inherit; font-size: 1rem; padding: .65rem .8rem;
+  border: 1px solid var(--linea); border-radius: .5rem;
+  background: var(--tarjeta); color: var(--tinta); width: 100%;
+}
+.campo input:focus-visible, .campo textarea:focus-visible {
+  outline: 2px solid var(--azul); outline-offset: 1px; border-color: var(--azul);
+}
+.campo textarea { resize: vertical; min-height: 4.5rem; }
+
+/* La trampa para robots se esconde sin usar display:none, que algunos
+   programas detectan y se saltan. */
+.trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.consentimiento {
+  display: flex; gap: .65rem; align-items: flex-start;
+  margin: 1.1rem 0 1.3rem; font-size: .9rem; color: var(--tinta-media); line-height: 1.5;
+}
+.consentimiento input { margin-top: .25rem; width: 1.1rem; height: 1.1rem; flex: 0 0 auto; accent-color: var(--azul); }
+
+.aviso-formulario { margin: .9rem 0 0; font-size: .92rem; font-weight: 700; min-height: 1.4em; }
+.aviso-formulario[data-estado="mal"] { color: #A3302A; }
+.aviso-formulario[data-estado="bien"] { color: var(--azul); }
+.formulario[hidden] { display: none; }
+
+.gracias {
+  max-width: var(--medida); margin: 2rem auto 0; padding: 1.6rem 1.8rem;
+  border: 1px solid var(--azul); border-radius: .8rem; background: var(--azul-suave);
+  text-align: left;
+}
+.gracias h3 { margin: 0 0 .5rem; font-family: var(--titulo); font-size: 1.3rem; color: var(--azul-hondo); }
+.gracias p { margin: 0; color: var(--tinta-media); }
+
+@media (max-width: 34rem) {
+  .campos { grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="hoja">
+
+  <header class="barra">
+    <div class="logo">C<b>-</b>Gest</div>
+    <span class="etiqueta">Para comunidades sin administrador</span>
+  </header>
+
+  <div class="portada">
+    <div class="portada-texto">
+      <h1>Te han hecho presidente de la comunidad. No tienes por qué saber de esto.</h1>
+      <p class="bajada">
+        C-Gest lleva las cuentas, los recibos, las juntas y las actas de tu edificio.
+        Tú sigues siendo un vecino; el programa hace la parte que da miedo.
+      </p>
+      <div class="acciones">
+        <a class="boton" href="#empezar">Quiero probarlo en mi comunidad</a>
+        <a class="boton hueco" href="#hace">Ver qué hace</a>
+      </div>
+      <p class="junto-boton">
+        Gratis para cada vecino, siempre. Lo contrata la comunidad, sin permanencia y con
+        catorce días para echarse atrás.
+      </p>
+    </div>
+    <figure class="telefono" style="margin:0">
+      <img src="imagenes/movil-inicio.png" width="430" height="900"
+           alt="La aplicación en un móvil: el nombre de la comunidad arriba, la deuda vencida, el próximo recibo y la próxima junta.">
+    </figure>
+  </div>
+
+  <!-- ======================================= el problema -->
+  <section>
+    <div class="titular">
+      <span class="etiqueta">Por qué te agobia</span>
+      <h2>No te dieron un cargo. Te dieron tres.</h2>
+    </div>
+
+    <div class="prosa">
+      <p>
+        La Ley de Propiedad Horizontal dice, en su artículo 13.5, que «las funciones del
+        secretario y del administrador serán ejercidas por el presidente de la comunidad»
+        salvo que la junta nombre a alguien para cada cosa.
+      </p>
+      <p>
+        Traducido: si tu comunidad no paga a un administrador de fincas, tú eres las tres
+        cosas a la vez. Y no lo pediste — el cargo es obligatorio, y solo se sale de él
+        pidiéndoselo a un juez dentro del primer mes.
+      </p>
+    </div>
+
+    <div class="sombreros">
+      <div class="sombrero">
+        <span class="etiqueta">Presidente</span>
+        <p>Representas a la comunidad, convocas la junta, firmas el acta y respondes de lo que se hace.</p>
+      </div>
+      <div class="sombrero">
+        <span class="etiqueta">Secretario</span>
+        <p>Levantas el acta y la cierras con su firma en diez días naturales. Custodias los papeles cinco años.</p>
+      </div>
+      <div class="sombrero">
+        <span class="etiqueta">Administrador</span>
+        <p>Llevas las cuentas, preparas el presupuesto, pasas los recibos y persigues a quien no paga.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================= lo que no hace nadie -->
+  <section>
+    <div class="titular">
+      <span class="etiqueta">La diferencia</span>
+      <h2>Cinco cosas que no hace ningún otro programa</h2>
+    </div>
+    <div class="prosa">
+      <p>
+        No lo decimos por decir: salen de leer 390 opiniones de las aplicaciones que ya existen
+        y los foros donde los presidentes preguntan sus dudas.
+      </p>
+    </div>
+
+    <div class="solos">
+      <article class="solo">
+        <h3>Quién tiene derecho a voto el día de la junta <span class="art">art. 15.2</span></h3>
+        <div>
+          <p class="nadie">Ninguna otra lo calcula</p>
+          <p>
+            El moroso pierde el voto, pero ¿moroso a qué fecha? C-Gest lo calcula a la fecha de
+            la junta y lo mete en la convocatoria, que es donde la Ley obliga a ponerlo.
+          </p>
+        </div>
+      </article>
+
+      <article class="solo">
+        <h3>El relevo del cargo, en un botón <span class="art">art. 13.7</span></h3>
+        <div>
+          <p class="nadie">Ninguna otra lo resuelve</p>
+          <p>
+            La presidencia se renueva cada año. Aquí pasa de un vecino a otro en un solo acto, y
+            el que entra se encuentra todo ordenado en vez de una caja con el libro de actas y
+            unas llaves. En las demás aplicaciones, el programa muere con el administrador.
+          </p>
+        </div>
+      </article>
+
+      <article class="solo">
+        <h3>A qué se va cada euro de tu cuota <span class="art">art. 20</span></h3>
+        <div>
+          <p class="nadie">Todas enseñan un saldo; ninguna, de dónde sale</p>
+          <p>
+            De tus 40 € al mes, cuánto va al ascensor y cuánto a la limpieza. Y al lado, lo que
+            de verdad se lleva gastado en cada cosa. Cuando las dos cifras se separan, hay una
+            conversación que tener — y aquí se tiene con números.
+          </p>
+        </div>
+      </article>
+
+      <article class="solo">
+        <h3>El acta sale de la propia votación <span class="art">art. 19.2</span></h3>
+        <div>
+          <p class="nadie">Ninguna otra la redacta</p>
+          <p>
+            Con el voto de cada finca y su coeficiente, no con lo que recuerde quien escribe. Y
+            quien vota desde el móvil puede confirmarlo con su cara o su huella: el acta hace
+            constar cómo se identificó, sin que la comunidad guarde ningún dato biométrico.
+          </p>
+        </div>
+      </article>
+
+      <article class="solo">
+        <h3>Tu certificado de cuotas para la renta</h3>
+        <div>
+          <p class="nadie">Ninguna otra lo emite</p>
+          <p>
+            Lo que pagaste durante el año, desglosado entre cuotas y derramas. Si tienes el piso
+            alquilado, las cuotas son gasto deducible; hasta ahora había que pedírselo al
+            presidente para que rebuscara en los extractos del banco.
+          </p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================================= lo que hace -->
+  <section id="hace">
+    <div class="titular">
+      <span class="etiqueta">Qué hace el programa</span>
+      <h2>Lo que hasta ahora hacías en un Excel, y de memoria</h2>
+    </div>
+
+    <div class="hace">
+      <div class="pieza">
+        <h3>El censo cuadra o no te deja seguir <span class="art">art. 5</span></h3>
+        <p>Cada piso, local, garaje y trastero con su coeficiente de las escrituras. La suma tiene que dar 100 % exacto, sin redondeos: si no cuadra, el programa te dice cuánto falta.</p>
+      </div>
+      <div class="pieza">
+        <h3>El presupuesto del año, partida a partida <span class="art">art. 9</span></h3>
+        <p>Ascensor, limpieza, seguro, fondo de reserva. Lo apruebas, lo anuncias en el tablón y cada gasto se imputa a su partida.</p>
+      </div>
+      <div class="pieza">
+        <h3>Cuotas y derramas al céntimo</h3>
+        <p>Repartes por coeficiente y siempre suma el total exacto. Se acabó discutir en junta por dos céntimos que no cuadraban.</p>
+      </div>
+      <div class="pieza">
+        <h3>Los recibos al banco, de una vez <span class="art">SEPA 19-14</span></h3>
+        <p>Con los mandatos firmados, el programa genera el fichero de la remesa domiciliada y lo subes al banco. Dejas de perseguir transferencias.</p>
+      </div>
+      <div class="pieza">
+        <h3>Convocar la junta, correctamente <span class="art">art. 16</span></h3>
+        <p>Orden del día, primera y segunda convocatoria, los seis días de antelación y la advertencia de quién se queda sin voto. Todo puesto.</p>
+      </div>
+      <div class="pieza">
+        <h3>Te dice qué mayoría hace falta <span class="art">art. 17</span></h3>
+        <p>Al montar cada punto del orden del día: mayoría simple, tres quintos, unanimidad. Y luego cuenta los votos aplicando esa regla, en propietarios y en cuotas.</p>
+      </div>
+      <div class="pieza">
+        <h3>El acta, firmada y archivada <span class="art">art. 19</span></h3>
+        <p>Se cierra con las dos firmas dentro de los diez días y queda guardada en PDF por años, con su histórico de quién presidía cada año.</p>
+      </div>
+      <div class="pieza">
+        <h3>Partes de avería con foto</h3>
+        <p>El vecino abre el parte desde el móvil con su foto. A ti te llega el aviso, y el historial queda para cuando haya que reclamar al seguro.</p>
+      </div>
+      <div class="pieza">
+        <h3>Tres presupuestos, comparados</h3>
+        <p>Puestos uno al lado de otro por lo que a la comunidad le importa, y anunciados en el tablón para que nadie diga que no se enteró.</p>
+      </div>
+      <div class="pieza">
+        <h3>Tablón, chat y reservas</h3>
+        <p>Los avisos donde se leen, con lo retirado guardado aparte por si hay que consultarlo. El grupo de la comunidad separado del de las bromas.</p>
+      </div>
+      <div class="pieza">
+        <h3>Varios bloques, una macrocomunidad <span class="art">art. 24</span></h3>
+        <p>Si tu urbanización tiene varios portales con junta propia, cada uno lleva lo suyo y la macrocomunidad lo suyo. Sin duplicar a nadie.</p>
+      </div>
+      <div class="pieza">
+        <h3>Nadie ve lo que no le toca</h3>
+        <p>Quién ve cada cosa lo decide el servidor, no la pantalla. Los morosos no salen con nombre en ningún tablón público.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================= la galería -->
+  <section>
+    <div class="titular">
+      <span class="etiqueta">Cómo se ve</span>
+      <h2>En el móvil del vecino y en el puesto de quien lleva la comunidad</h2>
+    </div>
+
+    <div class="galeria">
+      <figure>
+        <div class="telefono">
+          <img src="imagenes/movil-inicio.png" width="430" height="900"
+               alt="Pantalla de inicio: la deuda vencida, el próximo recibo y la próxima junta.">
+        </div>
+        <figcaption>
+          Lo que ve el vecino al abrir: si está al corriente, cuándo vence su próximo recibo y
+          cuándo es la junta.
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="telefono">
+          <img src="imagenes/movil-tablon.png" width="430" height="900"
+               alt="El tablón de anuncios con lo que sigue puesto y un botón para ver lo retirado.">
+        </div>
+        <figcaption>
+          El tablón: arriba lo que sigue puesto, y abajo, guardado, lo que ya se retiró por si
+          hay que consultarlo.
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="puesto">
+      <img src="imagenes/puesto-resumen.png" width="1440" height="900"
+           alt="El puesto de escritorio: saldo de tesorería, pendiente de cobro, deuda vencida, partes abiertos, la agenda y la próxima junta.">
+    </div>
+    <p class="pie-figura">
+      El puesto, para quien lleva la comunidad. Todo lo que hay que mirar un lunes por la
+      mañana, en una pantalla.
+    </p>
+  </section>
+
+  <!-- ======================================= precio -->
+  <section>
+    <div class="titular">
+      <span class="etiqueta">Cuánto cuesta</span>
+      <h2>Lo que paga tu comunidad hoy, y lo que costaría</h2>
+    </div>
+
+    <div class="prosa">
+      <p>Las cifras son para una comunidad de treinta vecinos, al año.</p>
+    </div>
+
+    <div class="cuentas">
+      <table>
+        <thead>
+          <tr><th>Qué</th><th>Al año</th><th>Por vecino y mes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Administrador de fincas</td><td class="n">1.400 – 2.900 €</td><td class="n">4 – 8 €</td></tr>
+          <tr><td>Administración online</td><td class="n">desde 720 €</td><td class="n">desde 2 €</td></tr>
+          <tr class="nuestra"><td>C-Gest</td><td class="n">según viviendas</td><td class="n">te lo digo hoy</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prosa">
+      <p>
+        El precio va por número de viviendas, porque no cuesta lo mismo llevar ocho pisos que
+        ochenta. Dinos cuántas sois <a href="#empezar">ahí abajo</a> y te lo decimos el mismo
+        día, sin que tengas que hablar con nadie por teléfono si no quieres.
+      </p>
+    </div>
+
+
+    <div class="prosa" style="margin-top: 1.6rem;">
+      <p>
+        <strong>Gratis para cada vecino, siempre.</strong> No hay compras dentro de la
+        aplicación: la contrata la comunidad y se paga fuera, contra su CIF, como cualquier otro
+        servicio que aprueba la junta.
+      </p>
+      <p>
+        Sin permanencia, sin penalización por darse de baja y con catorce días naturales para
+        echarse atrás. Y el día que lo dejéis, os lleváis todos vuestros datos, enteros y sin
+        coste.
+      </p>
+    </div>
+  </section>
+
+  <!-- ======================================= objeciones -->
+  <section>
+    <div class="titular">
+      <span class="etiqueta">Lo que te van a decir en la junta</span>
+      <h2>Y qué contestar</h2>
+    </div>
+
+    <div class="objeciones">
+      <div class="objecion">
+        <q>Otro gasto más</q>
+        <p>Comparado con un administrador de fincas, es lo que cuesta un mes de administrador al año. Y no sustituye ningún gasto que ya tengáis: sustituye el tiempo que echa el presidente.</p>
+      </div>
+      <div class="objecion">
+        <q>Yo no tengo móvil, o no me aclaro con esas cosas</q>
+        <p>No hace falta que lo uses. Lo usa quien lleva la comunidad. Todo lo que sale de ahí se puede imprimir en papel, y a quien lo pida se le sigue dando en papel como hasta ahora.</p>
+      </div>
+      <div class="objecion">
+        <q>¿Y nuestros datos, dónde acaban?</q>
+        <p>Son de la comunidad, no de la empresa. Una comunidad no ve nunca los datos de otra. Y el día que lo dejéis, os los lleváis enteros y sin coste. Está en el contrato.</p>
+      </div>
+      <div class="objecion">
+        <q>¿Y si el año que viene soy yo el presidente?</q>
+        <p>Es justamente lo que mejor resuelve. El cargo se pasa dentro del programa y el que entra se lo encuentra todo ordenado.</p>
+      </div>
+      <div class="objecion">
+        <q>Nosotros ya tenemos administrador</q>
+        <p>Entonces C-Gest es donde cada vecino ve lo suyo sin tener que llamar a nadie: sus recibos, las cuentas, las actas y a qué se va su cuota. El administrador sigue donde está.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================= cierre -->
+  <section class="cierre" id="empezar">
+    <span class="etiqueta">Empezar</span>
+    <h2>Cuéntame cómo es tu comunidad</h2>
+    <div class="prosa">
+      <p>
+        Con cuántos vecinos sois y qué es lo que más trabajo te da me basta para decirte si esto
+        te sirve — y si no te sirve, te lo digo también. Contesto el mismo día.
+      </p>
+    </div>
+
+    <form class="formulario" id="formulario" novalidate>
+      <div class="campos">
+        <label class="campo">
+          <span>Tu nombre <b>*</b></span>
+          <input name="nombre" required maxlength="120" autocomplete="name" placeholder="Rosa Belmonte">
+        </label>
+        <label class="campo">
+          <span>Tu correo <b>*</b></span>
+          <input name="email" type="email" required maxlength="160" autocomplete="email" placeholder="rosa@ejemplo.es">
+        </label>
+        <label class="campo">
+          <span>Tu teléfono</span>
+          <input name="telefono" type="tel" maxlength="40" autocomplete="tel" placeholder="600 100 100">
+        </label>
+        <label class="campo">
+          <span>Cuántas viviendas sois</span>
+          <input name="viviendas" type="number" min="1" max="5000" inputmode="numeric" placeholder="24">
+        </label>
+        <label class="campo">
+          <span>Tu comunidad</span>
+          <input name="comunidad" maxlength="160" placeholder="C. P. Los Almendros">
+        </label>
+        <label class="campo">
+          <span>Municipio</span>
+          <input name="municipio" maxlength="120" placeholder="Marbella">
+        </label>
+        <label class="campo ancho">
+          <span>Qué es lo que más trabajo te da</span>
+          <textarea name="mensaje" rows="3" maxlength="2000" placeholder="Las cuentas y perseguir a los que no pagan. La junta la llevo como puedo."></textarea>
+        </label>
+      </div>
+
+      <!-- Trampa para robots: una persona no ve este campo, así que si viene
+           relleno es que lo ha rellenado un programa y no se guarda. -->
+      <div class="trampa" aria-hidden="true">
+        <label>No rellenes esto <input name="apellido2" tabindex="-1" autocomplete="off"></label>
+      </div>
+
+      <label class="consentimiento">
+        <input type="checkbox" name="acepto" required>
+        <span>
+          Acepto que guardéis estos datos para contestarme y prepararme un presupuesto, como
+          explica la <a href="https://juancarjim.github.io/cgest-legal/privacidad.html#si-nos-escribe-desde-la-web" target="_blank" rel="noreferrer">política de privacidad</a>.
+          No se ceden a nadie y puedo pedir que se borren cuando quiera.
+        </span>
+      </label>
+
+      <div class="acciones">
+        <button class="boton" type="submit" id="enviar">Pídeme el presupuesto</button>
+      </div>
+      <p class="aviso-formulario" id="aviso" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <footer class="franja-legal">
+    <div class="logo">C<b>-</b>Gest</div>
+    <p>
+      C-Gest es un programa de gestión de comunidades de propietarios. No es un despacho de
+      administración de fincas ni presta asesoramiento jurídico: las decisiones las sigue
+      tomando la junta de propietarios.
+    </p>
+    <p>
+      Una comunidad de propietarios tiene la condición de consumidora (art. 3 del texto
+      refundido de la Ley General para la Defensa de los Consumidores y Usuarios). El contrato
+      dura un ejercicio, no tiene permanencia ni penalización por baja, y la comunidad dispone
+      de catorce días naturales para desistir sin causa.
+    </p>
+    <p>
+      <a href="https://juancarjim.github.io/cgest-legal/privacidad.html">Política de privacidad</a> ·
+      <a href="https://juancarjim.github.io/cgest-legal/terminos.html">Condiciones de uso</a>
+    </p>
+    <p>
+      Las referencias a artículos son de la Ley 49/1960, de Propiedad Horizontal, en su texto
+      consolidado. Los precios de mercado de la comparación son precios de referencia del
+      sector, no ofertas de terceros. Las pantallas son de una comunidad de muestra: los
+      nombres y las cifras son inventados.
+    </p>
+  </footer>
+
+</div>
+
+<script src="config.js"></script>
+<script>
+/**
+ * El formulario escribe directamente en la base de C-Gest.
+ *
+ * No hay servidor intermedio ni servicio de terceros: se inserta en la tabla
+ * `solicitudes_contacto` con la clave anónima, que es pública a propósito. Lo
+ * que protege los datos es la RLS: sobre esa tabla el rol anónimo puede
+ * INSERTAR y nada más — no puede leer ni la fila que acaba de escribir.
+ *
+ * Por eso la cabecera `Prefer: return=minimal` NO es opcional: sin ella
+ * PostgREST intenta devolver la fila insertada, y como no hay permiso de
+ * lectura, la petición fallaría después de haber guardado bien el dato.
+ */
+(function () {
+  var formulario = document.getElementById('formulario');
+  if (!formulario || !window.CGEST) return;
+
+  var aviso = document.getElementById('aviso');
+  var boton = document.getElementById('enviar');
+
+  function decir(texto, estado) {
+    aviso.textContent = texto;
+    if (estado) aviso.setAttribute('data-estado', estado);
+    else aviso.removeAttribute('data-estado');
+  }
+
+  formulario.addEventListener('submit', function (evento) {
+    evento.preventDefault();
+    var d = new FormData(formulario);
+
+    // Si la trampa viene rellena, lo ha hecho un programa. Se le contesta que
+    // todo ha ido bien y no se guarda nada: discutir con un robot no lleva a
+    // ningún sitio.
+    if ((d.get('apellido2') || '').trim() !== '') {
+      formulario.hidden = true;
+      return;
+    }
+
+    var nombre = (d.get('nombre') || '').trim();
+    var email = (d.get('email') || '').trim();
+    if (nombre.length < 2) return decir('Dime cómo te llamas, aunque sea solo el nombre.', 'mal');
+    if (email.indexOf('@') < 1) return decir('Ese correo no parece un correo. Míralo otra vez.', 'mal');
+    if (!d.get('acepto')) return decir('Marca la casilla para que pueda guardar tus datos y contestarte.', 'mal');
+
+    var viviendas = parseInt(d.get('viviendas'), 10);
+    var solicitud = {
+      nombre: nombre,
+      email: email,
+      telefono: (d.get('telefono') || '').trim() || null,
+      comunidad: (d.get('comunidad') || '').trim() || null,
+      municipio: (d.get('municipio') || '').trim() || null,
+      viviendas: isNaN(viviendas) ? null : viviendas,
+      mensaje: (d.get('mensaje') || '').trim() || null,
+      origen: location.pathname + location.search
+    };
+
+    boton.disabled = true;
+    decir('Enviando…');
+
+    fetch(window.CGEST.url + '/rest/v1/solicitudes_contacto', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: window.CGEST.clave,
+        Authorization: 'Bearer ' + window.CGEST.clave,
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(solicitud)
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('respuesta ' + r.status);
+        var gracias = document.createElement('div');
+        gracias.className = 'gracias';
+        gracias.innerHTML =
+          '<h3>Recibido, ' + nombre.split(' ')[0].replace(/[<>&]/g, '') + '.</h3>' +
+          '<p>Te contesto hoy mismo al correo que me has dejado. Si es urgente y prefieres que te llame, dímelo respondiendo a ese correo.</p>';
+        formulario.parentNode.insertBefore(gracias, formulario);
+        formulario.hidden = true;
+        gracias.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .catch(function () {
+        boton.disabled = false;
+        decir('No he podido enviarlo. Inténtalo otra vez en un minuto, o escríbeme al correo del pie de página.', 'mal');
+      });
+  });
+})();
+</script>
+</body>
+</html>
