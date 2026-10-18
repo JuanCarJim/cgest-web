@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>C-Gest</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#24543E">
 <meta name="description" content="El programa para la comunidad de vecinos que se lleva sola. Cuentas, recibos, juntas y actas, sin administrador de fincas. Gratis para cada vecino.">
 <link rel="canonical" href="https://juancarjim.github.io/cgest-web/">
 <meta property="og:type" content="website">
@@ -125,6 +130,8 @@ a  { color: var(--azul); }
          gap: 1rem; padding-block: 1.4rem; flex-wrap: wrap; }
 .logo { font-family: var(--titulo); font-size: 1.45rem; font-weight: 600; letter-spacing: -0.01em; }
 .logo b { color: var(--azul); font-weight: 600; }
+.logo { display: inline-flex; align-items: center; gap: 0.5em; }
+.logo-i { width: 1.6em; height: 1.6em; border-radius: 0.38em; }
 
 /* ------------------------------------------------ portada */
 
@@ -301,7 +308,7 @@ tr.nuestra td:first-child { box-shadow: inset 4px 0 0 var(--ocre); }
 <div class="hoja">
 
   <header class="barra">
-    <div class="logo">C<b>-</b>Gest</div>
+    <div class="logo"><img class="logo-i" src="favicon.svg" alt=""><span>C<b>-</b>Gest</span></div>
     <span class="etiqueta">Para comunidades sin administrador</span>
   </header>
 
@@ -681,7 +688,7 @@ tr.nuestra td:first-child { box-shadow: inset 4px 0 0 var(--ocre); }
   </section>
 
   <footer class="franja-legal">
-    <div class="logo">C<b>-</b>Gest</div>
+    <div class="logo"><img class="logo-i" src="favicon.svg" alt=""><span>C<b>-</b>Gest</span></div>
     <p>
       C-Gest es un programa de gestión de comunidades de propietarios. No es un despacho de
       administración de fincas ni presta asesoramiento jurídico: las decisiones las sigue
